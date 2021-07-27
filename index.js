@@ -2,23 +2,23 @@
 
 const line = require("@line/bot-sdk");
 const express = require("express");
-
-// create LINE SDK config from env variables
+require("dotenv").config();
 const config = {
-  channelAccessToken:
-    "PED9E+NkGkld2BRkwwOgEo+ADmnxkvGv0CVKhxcTiSdjWbbG2wG2bK0GoQiEOHQIpyNc/r3+ZhyVN1bgXnlVSyY5OFKsbFEHJ54rtxS244qYgMJ7U49bSMAVYlSsPQYjssJ/Fi6oTsM3u9X5hWWUyQdB04t89/1O/w1cDnyilFU=",
-  channelSecret: "9dace8cb11d9f98d3314e2bc84811d58",
+  channelAccessToken: process.env.channelAccessToken,
+  channelSecret: process.env.channelSecret,
 };
 
-// create LINE SDK client
 const client = new line.Client(config);
-
-// create Express app
-// about Express itself: https://expressjs.com/
+const port = process.env.PORT || 3000;
 const app = express();
+const server = app.listen(port, () => {
+  console.log(`listening on ${port}`);
+});
 
-// register a webhook handler with middleware
-// about the middleware, please refer to doc
+app.get("/", function (req, res) {
+  res.status(200);
+});
+
 app.post("/callback", line.middleware(config), (req, res) => {
   Promise.all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
@@ -28,201 +28,245 @@ app.post("/callback", line.middleware(config), (req, res) => {
     });
 });
 
-// event handler
 function handleEvent(event) {
+  var eventText = event.message.text.toLowerCase();
   if (event.type !== "message" || event.message.type !== "text") {
-    // ignore non-text-message event
     return Promise.resolve(null);
-  } 
-  
-  else if (
-    event.message.type === "text" &&
-    event.message.text === "คำสั่ง"
-  ) {
+  } else if (eventText === "text") {
     const payload = {
       type: "text",
-      text: "คำสั่ง Bot : Message, URI, Postback, Datetime, Camera, CameraRoll, Location",
+      text: "hello world \uDBC0\uDCA4",
     };
-    // use reply API
-    return client.replyMessage(event.replyToken, payload);
-  } 
 
-  //Message Action
-  else if (
-    event.message.type === "text" &&
-    event.message.text === "Message"
-  ) {
-    const payload = {
-      type: "text",
-      text: "Message Action!",
-      quickReply: {
-        items: [
-          {
-            type: "action",
-            action: {
-              type: "message",
-              label: "Message",
-              text: "Hello World!",
-            },
-          },
-        ],
-      },
-    };
-    // use reply API
     return client.replyMessage(event.replyToken, payload);
-  } 
-  
-   //URI Action
-   else if (event.message.type === "text" && event.message.text === "URI") {
+  } else if (eventText === "sticker") {
     const payload = {
-      type: "flex",
-      altText: "This is a Flex Message",
-      contents: {
-        type: "bubble",
-        body: {
-          type: "box",
-          layout: "vertical",
-          contents: [
-            {
-              type: "button",
-              style: "primary",
-              height: "sm",
-              action: {
-                type: "uri",
-                label: "Add to Cart",
-                uri: "https://developers.line.me",
-              },
-            },
-          ],
+      type: "sticker",
+      packageId: 11537,
+      stickerId: 52002744,
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "image") {
+    const payload = {
+      type: "image",
+      originalContentUrl: "https://mokmoon.com/images/LINEDevelopers.png",
+      previewImageUrl: "https://mokmoon.com/images/LINEDEV.png",
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "video") {
+    const payload = {
+      type: "video",
+      originalContentUrl: "https://mokmoon.com/videos/Brown.mp4",
+      previewImageUrl: "https://linefriends.com/img/bangolufsen/img_og.jpg",
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "audio") {
+    const payload = {
+      type: "audio",
+      originalContentUrl: "https://mokmoon.com/audios/line.mp3",
+      duration: 1000,
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "location") {
+    const payload = {
+      type: "location",
+      title: "LINE Company (Thailand) Limited",
+      address:
+        "127 อาคารเกษรทาวเวอร์ ชั้น17 ถ.ราชดำริ แขวงลุมพินี เขตปทุมวัน กรุงเทพฯ 10330",
+      latitude: 13.7460089,
+      longitude: 100.5386192,
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "imagemap") {
+    const payload = {
+      type: "imagemap",
+      baseUrl:
+        "https://charabizasia.files.wordpress.com/2017/07/main-1.jpg?w=1040",
+      altText: "This is an imagemap",
+      baseSize: {
+        width: 1040,
+        height: 623,
+      },
+      video: {
+        originalContentUrl: "https://mokmoon.com/videos/Brown.mp4",
+        previewImageUrl: "https://linefriends.com/img/bangolufsen/img_og.jpg",
+        area: {
+          x: 260,
+          y: 155,
+          width: 540,
+          height: 360,
+        },
+        externalLink: {
+          linkUri: "https://line.me",
+          label: "See More",
         },
       },
+      actions: [
+        {
+          type: "uri",
+          linkUri: "https://developers.line.biz",
+          area: {
+            x: 0,
+            y: 0,
+            width: 320,
+            height: 320,
+          },
+        },
+        {
+          type: "message",
+          text: "Hello",
+          area: {
+            x: 720,
+            y: 303,
+            width: 320,
+            height: 320,
+          },
+        },
+      ],
     };
-    // use reply API
+
     return client.replyMessage(event.replyToken, payload);
-  } 
-  
-   //Postback Action
-   else if (
-    event.message.type === "text" &&
-    event.message.text === "Postback"
-  ) {
+  } else if (eventText === "buttons template") {
     const payload = {
-      type: "text",
-      text: "Postback Action!",
-      quickReply: {
-        items: [
+      type: "template",
+      altText: "This is a buttons template",
+      template: {
+        type: "buttons",
+        thumbnailImageUrl:
+          "https://www.nylon.com.sg/wp-content/uploads/2017/07/LINE-Friends.jpg",
+        imageAspectRatio: "rectangle",
+        imageSize: "cover",
+        imageBackgroundColor: "#FFFFFF",
+        title: "Menu",
+        text: "Please select",
+        defaultAction: {
+          type: "uri",
+          label: "View detail",
+          uri: "https://developers.line.biz",
+        },
+        actions: [
           {
-            type: "action",
+            type: "postback",
+            label: "Buy",
+            data: "action=buy&itemid=123",
+          },
+          {
+            type: "uri",
+            label: "View detail",
+            uri: "https://line.me",
+          },
+        ],
+      },
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "confirm Template") {
+    const payload = {
+      type: "template",
+      altText: "This is a confirm template",
+      template: {
+        type: "confirm",
+        text: "Are you sure?",
+        actions: [
+          {
+            type: "message",
+            label: "Yes",
+            text: "yes",
+          },
+          {
+            type: "message",
+            label: "No",
+            text: "no",
+          },
+        ],
+      },
+    };
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "carousel template") {
+    const payload = {
+      type: "template",
+      altText: "This is a carousel template",
+      template: {
+        type: "carousel",
+        imageAspectRatio: "rectangle",
+        imageSize: "cover",
+        columns: [
+          {
+            thumbnailImageUrl:
+              "https://www.koreaexpose.com/wp-content/uploads/2018/01/LINE-Friends-characters-min.jpg",
+            imageBackgroundColor: "#FFFFFF",
+            title: "this is menu",
+            text: "description",
+            defaultAction: {
+              type: "uri",
+              label: "LINE",
+              uri: "https://developers.line.biz",
+            },
+            actions: [
+              {
+                type: "postback",
+                label: "Buy",
+                data: "action=buy&itemid=111",
+              },
+            ],
+          },
+          {
+            thumbnailImageUrl:
+              "https://www.nylon.com.sg/wp-content/uploads/2017/07/LINE-Friends.jpg",
+            imageBackgroundColor: "#000000",
+            title: "this is menu",
+            text: "description",
+            defaultAction: {
+              type: "uri",
+              label: "LINE",
+              uri: "https://developers.line.biz",
+            },
+            actions: [
+              {
+                type: "uri",
+                label: "LINE",
+                uri: "https://line.me",
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    return client.replyMessage(event.replyToken, payload);
+  } else if (eventText === "image carousel template") {
+    const payload = {
+      type: "template",
+      altText: "This is an image carousel template",
+      template: {
+        type: "image_carousel",
+        columns: [
+          {
+            imageUrl:
+              "https://vignette.wikia.nocookie.net/line/images/b/bb/2015-brown.png",
             action: {
-              type: "postback",
-              label: "Postback",
-              data: "DATAPOSTBACK",
+              type: "message",
+              label: "Brown",
+              text: "Brown was selected",
+            },
+          },
+          {
+            imageUrl:
+              "https://vignette.wikia.nocookie.net/line/images/1/10/2015-cony.png",
+            action: {
+              type: "uri",
+              label: "Cony",
+              uri: "https://developers.line.biz",
             },
           },
         ],
       },
     };
-    // use reply API
-    return client.replyMessage(event.replyToken, payload);
-  } 
-  
-   //Datetime Picker Action
-   else if (
-    event.message.type === "text" &&
-    event.message.text === "Datetime"
-  ) {
-    const payload = {
-      type: "text",
-      text: "Datetime picker Action!",
-      quickReply: {
-        items: [
-          {
-            type: "action",
-            action: {
-              type: "datetimepicker",
-              label: "Datetime Picker",
-              data: "storeId=12345",
-              mode: "datetime",
-              max: "2021-12-31T23:59",
-              min: "2021-01-01T00:00",
-            },
-          },
-        ],
-      },
-    };
-    // use reply API
-    return client.replyMessage(event.replyToken, payload);
-  } 
-   //Camera Action
-   else if (event.message.type === "text" && event.message.text === "Camera") {
-    const payload = {
-      type: "text",
-      text: "Camera Action!",
-      quickReply: {
-        items: [
-          {
-            type: "action",
-            action: {
-              type: "camera",
-              label: "Camera",
-            },
-          },
-        ],
-      },
-    };
-    // use reply API
-    return client.replyMessage(event.replyToken, payload);
-  }    
-  //CameraRoll Action
-  else if (
-    event.message.type === "text" &&
-    event.message.text === "CameraRoll"
-  ) {
-    const payload = {
-      type: "text",
-      text: "CameraRoll Action!",
-      quickReply: {
-        items: [
-          {
-            type: "action",
-            action: {
-              type: "cameraRoll",
-              label: "Gallery",
-            },
-          },
-        ],
-      },
-    };
-    // use reply API
-    return client.replyMessage(event.replyToken, payload);
-  }    
-  //Location Action
-   else if (
-    event.message.type === "text" &&
-    event.message.text === "Location"
-  ) {
-    const payload = {
-      type: "text",
-      text: "Location Action!",
-      quickReply: {
-        items: [
-          {
-            type: "action",
-            action: {
-              type: "location",
-              label: "Location",
-            },
-          },
-        ],
-      },
-    };
-    // use reply API
     return client.replyMessage(event.replyToken, payload);
   }
 }
-
-// listen on port
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`listening on ${port}`);
-});

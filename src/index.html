@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+<title>socket line test</title>
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<script>
+const socket = io()
+socket.on("reply-ready", reply => {
+  console.log(reply)
+  socket.emit("reply", reply)
+})
+</script>
+</body>
+</html>
