@@ -1,0 +1,26 @@
+{
+  "name": "package.json",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.9",
+    "socket.io": "^4.1.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/booncoder123/WebSocket.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com/booncoder123/WebSocket.io/issues"
+  },
+  "homepage": "https://github.com/booncoder123/WebSocket.io#readme",
+  "description": ""
+}
